@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "交易練習（Web + Service）";
+    var accounts = ViewBag.Accounts as IEnumerable<TransactionPratice.Application.Services.AccountItem>
+                   ?? [];
+    string? message = ViewBag.Message as string;
+    bool? success = ViewBag.Success as bool?;
+    var inputFromAccountId = ViewBag.InputFromAccountId;
+    var inputToAccountId = ViewBag.InputToAccountId;
+    var inputAmount = ViewBag.InputAmount;
+    var inputLoopCount = ViewBag.InputLoopCount;
+    var inputFailAt = ViewBag.InputFailAt;
+}
+
+<h2 class="mb-3">Transaction 練習（Web + Service）</h2>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <div class="alert @(success == true ? "alert-success" : "alert-danger")" role="alert">
+        @message
+    </div>
+}
+
+<div class="card mb-4 border-danger">
+    <div class="card-body">
+        <h5 class="card-title text-danger">Transaction 回朔壓力測試</h5>
+        <p class="card-text">
+            同一個 DB Transaction 內跑回圈。若在「中斷於第幾筆」填入數字，會在該筆故意丟例外，
+            預期整批都 rollback（前面已成功的筆數也不會落地）。
+        </p>
+        <form asp-action="BatchTest" method="post" class="row g-3">
+            <div class="col-md-2">
+                <label class="form-label">轉出帳戶</label>
+                <input name="fromAccountId" class="form-control" value="@(inputFromAccountId ?? 1)" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">轉入帳戶</label>
+                <input name="toAccountId" class="form-control" value="@(inputToAccountId ?? 2)" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">每筆金額</label>
+                <input name="amount" class="form-control" value="@(inputAmount ?? 1)" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">回圈次數</label>
+                <input name="loopCount" class="form-control" value="@(inputLoopCount ?? 100)" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">中斷於第幾筆 (0=不中斷)</label>
+                <input name="failAt" class="form-control" value="@(inputFailAt ?? 30)" />
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-danger">執行批次交易測試</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<h4>目前帳戶</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Owner</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var account in accounts)
+    {
+        <tr>
+            <td>@account.Id</td>
+            <td>@account.OwnerName</td>
+            <td>@account.Balance</td>
+        </tr>
+    }
+    </tbody>
+</table>

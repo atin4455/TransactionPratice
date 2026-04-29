@@ -1,7 +1,15 @@
+using Microsoft.EntityFrameworkCore;
+using TransactionPratice.Application.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Server=localhost;Database=TransactionPractice;Trusted_Connection=True;TrustServerCertificate=True;"));
+builder.Services.AddScoped<ITransferService, TransferService>();
 
 var app = builder.Build();
 
@@ -22,7 +30,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Transfer}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 
